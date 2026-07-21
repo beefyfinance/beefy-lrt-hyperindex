@@ -37,3 +37,4 @@ generated
 
 networks_config.yaml
 *.log
+.envio/

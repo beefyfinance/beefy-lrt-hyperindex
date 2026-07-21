@@ -1,5 +1,4 @@
-import { BigDecimal, type handlerContext as HandlerContext } from 'generated';
-import type { BeefyStrategy_t, BeefyVault_t, Token_t } from 'generated/src/db/Entities.gen';
+import { type BeefyStrategy, type BeefyVault, BigDecimal, type EvmOnEventContext, type Token } from 'envio';
 import type { Hex } from 'viem';
 import type { ChainId } from '../lib/chain';
 import { InitializableStatus } from '../lib/initializableStatus';
@@ -8,7 +7,7 @@ import { getOrCreateBeefyVaultUnderlyingToken } from './vaultToken.entity';
 export const beefyVaultId = ({ chainId, address }: { chainId: ChainId; address: Hex }) =>
     `${chainId}-${address.toLowerCase()}`;
 
-export const getBeefyVault = async (context: HandlerContext, chainId: ChainId, address: Hex) => {
+export const getBeefyVault = async (context: EvmOnEventContext, chainId: ChainId, address: Hex) => {
     const id = beefyVaultId({ chainId, address });
     return await context.BeefyVault.get(id);
 };
@@ -20,9 +19,9 @@ export const getBeefyVaultById = async ({
     context,
     id,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     id: string;
-}): Promise<BeefyVault_t | null> => {
+}): Promise<BeefyVault | null> => {
     const vault = await context.BeefyVault.get(id);
     return vault ?? null;
 };
@@ -34,8 +33,8 @@ export const updateBeefyVault = async ({
     context,
     vault,
 }: {
-    context: HandlerContext;
-    vault: BeefyVault_t;
+    context: EvmOnEventContext;
+    vault: BeefyVault;
 }): Promise<void> => {
     context.BeefyVault.set(vault);
 };
@@ -52,20 +51,20 @@ export const createBeefyVault = async ({
     initializedBlockNumber,
     initializedTimestamp,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     address: Hex;
-    sharesToken: Token_t;
-    underlyingTokens: Token_t[];
+    sharesToken: Token;
+    underlyingTokens: Token[];
     strategyAddress: Hex;
     vaultId: string;
     underlyingPlatform: string;
     initializedBlockNumber: bigint;
     initializedTimestamp: bigint;
-}): Promise<BeefyVault_t> => {
+}): Promise<BeefyVault> => {
     const id = beefyVaultId({ chainId, address });
     context.log.debug('Getting or creating beefy vault', { id });
-    const vault: BeefyVault_t = {
+    const vault: BeefyVault = {
         id,
         chainId,
         address,
@@ -78,7 +77,7 @@ export const createBeefyVault = async ({
         lastBalanceBreakdownUpdateTimestamp: initializedTimestamp,
         sharesTokenTotalSupply: new BigDecimal(0),
         breakdownTokensOrder: underlyingTokens.map((token) => token.id),
-    } as unknown as BeefyVault_t;
+    } as unknown as BeefyVault;
 
     context.BeefyVault.set(vault);
 
@@ -99,10 +98,10 @@ export const getAllBeefyVaultsForChain = async ({
     context,
     chainId,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
-}): Promise<BeefyVault_t[]> => {
-    return await context.BeefyVault.getWhere.chainId.eq(chainId);
+}): Promise<BeefyVault[]> => {
+    return await context.BeefyVault.getWhere({ chainId: { _eq: chainId } });
 };
 
 export const getBeefyStrategyId = ({ chainId, address }: { chainId: ChainId; address: Hex }) =>
@@ -114,20 +113,20 @@ export const createBeefyStrategy = async ({
     strategyAddress,
     vault,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     strategyAddress: Hex;
-    vault: BeefyVault_t;
-}): Promise<BeefyStrategy_t> => {
+    vault: BeefyVault;
+}): Promise<BeefyStrategy> => {
     const id = getBeefyStrategyId({ chainId, address: strategyAddress });
     context.log.debug('Getting or creating beefy strategy', { id });
-    const strategy: BeefyStrategy_t = {
+    const strategy: BeefyStrategy = {
         id,
         chainId,
         address: strategyAddress,
         vault_id: vault.id,
         initializableStatus: InitializableStatus.INITIALIZED,
-    } as unknown as BeefyStrategy_t;
+    } as unknown as BeefyStrategy;
     context.BeefyStrategy.set(strategy);
     return strategy;
 };

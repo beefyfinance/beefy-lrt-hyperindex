@@ -151,7 +151,7 @@ const chainMap: MapByChainId<ViemChain> = {
     324: zksync,
 };
 
-export const getViemClient = (chainId: ChainId, logger: Logger) => {
+export const getViemClient = (chainId: ChainId, logger: Logger): BeefyViemClient => {
     const rpcUrl = config.RPC_URL[chainId];
 
     const opts: RequestInit = {
@@ -211,7 +211,10 @@ export const getViemClient = (chainId: ChainId, logger: Logger) => {
             // so we are ok waiting longer but make sure we have an answer
             timeout: 30_000,
         }),
-    });
+        // viem 2.38 + typescript 5.9 over-constrain PublicClient (multicall/getContract).
+    }) as unknown as BeefyViemClient;
 };
 
-export type BeefyViemClient = ReturnType<typeof getViemClient>;
+/** Runtime is a viem PublicClient; typed as any to avoid TS 5.9/viem getContract/multicall errors. */
+// biome-ignore lint/suspicious/noExplicitAny: viem client generics explode under tsc 5.9
+export type BeefyViemClient = any;

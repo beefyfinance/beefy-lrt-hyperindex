@@ -1,5 +1,4 @@
-import { BigDecimal, type handlerContext as HandlerContext } from 'generated';
-import type { BeefyVault_t, Investor_t, InvestorPosition_t } from 'generated/src/db/Entities.gen';
+import { type BeefyVault, BigDecimal, type EvmOnEventContext, type Investor, type InvestorPosition } from 'envio';
 import * as R from 'remeda';
 import type { Hex } from 'viem';
 import { getVaultTvlBreakdownEffect } from '../effects/breakdown.effects';
@@ -24,7 +23,7 @@ const calculateTimeWeightedBalances = ({
     newBalances,
     currentTimestamp,
 }: {
-    investorPosition: InvestorPosition_t;
+    investorPosition: InvestorPosition;
     newBalances: BigDecimal[];
     currentTimestamp: bigint;
 }): { timeWeightedBalances: BigDecimal[]; finalBalances: BigDecimal[] } => {
@@ -79,10 +78,10 @@ export const updateInvestorPositionAndBreakdown = async ({
     blockNumber,
     blockTimestamp,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
-    investor: Investor_t;
-    vault: BeefyVault_t;
+    investor: Investor;
+    vault: BeefyVault;
     directSharesDiff: BigDecimal;
     indirectSharesDiff: BigDecimal;
     blockNumber: bigint;
@@ -97,7 +96,7 @@ export const updateInvestorPositionAndBreakdown = async ({
     });
 
     // Update investor position balances
-    const updatedPosition: InvestorPosition_t = {
+    const updatedPosition: InvestorPosition = {
         ...investorPosition,
         directSharesBalance: investorPosition.directSharesBalance.plus(directSharesDiff),
         rewardPoolSharesBalance: investorPosition.rewardPoolSharesBalance.plus(indirectSharesDiff),
@@ -177,7 +176,7 @@ export const updateInvestorPositionAndBreakdown = async ({
     const breakdownTokenIds = R.map(tokenResults, (result) => result.token.id);
 
     // Update vault with new breakdown tokens order, supply, and timestamps
-    const updatedVault: BeefyVault_t = {
+    const updatedVault: BeefyVault = {
         ...vault,
         breakdownTokensOrder: breakdownTokenIds,
         sharesTokenTotalSupply: vaultTotalSupply,
@@ -214,7 +213,7 @@ export const updateInvestorPositionAndBreakdown = async ({
             });
 
             // Update investor position with the new breakdown data
-            const updatedPositionWithBreakdown: InvestorPosition_t = {
+            const updatedPositionWithBreakdown: InvestorPosition = {
                 ...updatedPosition,
                 lastBalanceBreakdownBalances: finalBalances,
                 lastBalanceBreakdownTimeWeightedBalances: timeWeightedBalances,
@@ -239,9 +238,9 @@ export const updateVaultAndInvestorBreakdowns = async ({
     blockNumber,
     blockTimestamp,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
-    vault: BeefyVault_t;
+    vault: BeefyVault;
     blockNumber: bigint;
     blockTimestamp: bigint;
 }): Promise<void> => {
@@ -305,7 +304,7 @@ export const updateVaultAndInvestorBreakdowns = async ({
     const breakdownTokenIds = R.map(tokenResults, (result) => result.token.id);
 
     // Update vault with new breakdown tokens order, supply, and timestamps
-    const updatedVault: BeefyVault_t = {
+    const updatedVault: BeefyVault = {
         ...vault,
         breakdownTokensOrder: breakdownTokenIds,
         sharesTokenTotalSupply: vaultTotalSupply,
@@ -358,7 +357,7 @@ export const updateVaultAndInvestorBreakdowns = async ({
             });
 
             // Update investor position with the new breakdown data
-            const updatedPositionWithBreakdown: InvestorPosition_t = {
+            const updatedPositionWithBreakdown: InvestorPosition = {
                 ...investorPosition,
                 lastBalanceBreakdownBalances: finalBalances,
                 lastBalanceBreakdownTimeWeightedBalances: timeWeightedBalances,

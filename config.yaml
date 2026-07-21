@@ -1,8 +1,6 @@
 # yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 name: beefy-balance-indexer
 description: Beefy Finance Balance Indexer - Tracks ERC20 balances across multiple networks
-unordered_multichain_mode: true
-preload_handlers: true
 
 contracts:
   # contracts
@@ -28,7 +26,7 @@ contracts:
       - event: "Initialized(uint8 version)"
       - event: "Transfer(address indexed from, address indexed to, uint256 value)"
 
-networks:
+chains:
   # - id: 42161 # arbitrum
   #   start_block: 179921508
   #   rpc: ${ENVIO_RPC_URL_42161}

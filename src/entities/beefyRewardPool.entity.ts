@@ -1,5 +1,4 @@
-import type { handlerContext as HandlerContext } from 'generated';
-import type { BeefyRewardPool_t, BeefyVault_t, Token_t } from 'generated/src/db/Entities.gen';
+import type { BeefyRewardPool, BeefyVault, EvmOnEventContext, Token } from 'envio';
 import type { Hex } from 'viem';
 import type { ChainId } from '../lib/chain';
 import { InitializableStatus } from '../lib/initializableStatus';
@@ -7,7 +6,7 @@ import { InitializableStatus } from '../lib/initializableStatus';
 export const beefyRewardPoolId = ({ chainId, address }: { chainId: ChainId; address: Hex }) =>
     `${chainId}-${address.toLowerCase()}`;
 
-export const getBeefyRewardPool = async (context: HandlerContext, chainId: ChainId, address: Hex) => {
+export const getBeefyRewardPool = async (context: EvmOnEventContext, chainId: ChainId, address: Hex) => {
     const id = beefyRewardPoolId({ chainId, address });
     return await context.BeefyRewardPool.get(id);
 };
@@ -19,21 +18,21 @@ export const createBeefyRewardPool = async ({
     vault,
     rcowToken,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     address: Hex;
-    vault: BeefyVault_t;
-    rcowToken: Token_t;
-}): Promise<BeefyRewardPool_t> => {
+    vault: BeefyVault;
+    rcowToken: Token;
+}): Promise<BeefyRewardPool> => {
     const id = beefyRewardPoolId({ chainId, address });
-    const entity: BeefyRewardPool_t = {
+    const entity: BeefyRewardPool = {
         id,
         chainId,
         address,
         vault_id: vault.id,
         rcowToken_id: rcowToken.id,
         initializableStatus: InitializableStatus.INITIALIZED,
-    } as unknown as BeefyRewardPool_t;
+    } as unknown as BeefyRewardPool;
     context.BeefyRewardPool.set(entity);
     return entity;
 };

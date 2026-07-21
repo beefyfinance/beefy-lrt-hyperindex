@@ -1,5 +1,4 @@
-import type { handlerContext as HandlerContext } from 'generated';
-import type { Token_t } from 'generated/src/db/Entities.gen';
+import type { EvmOnEventContext, Token } from 'envio';
 import type { Hex } from 'viem';
 import { getTokenMetadataEffect } from '../effects/token.effects';
 import type { ChainId } from '../lib/chain';
@@ -12,10 +11,10 @@ export const getOrCreateToken = async ({
     chainId,
     tokenAddress,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     tokenAddress: Hex;
-}): Promise<Token_t> => {
+}): Promise<Token> => {
     const id = tokenId({ chainId, tokenAddress });
     const maybeExistingToken = await context.Token.get(id);
     if (maybeExistingToken) {
@@ -40,12 +39,12 @@ export const getOrCreateToken = async ({
 /**
  * Get token by ID, returns null if not found
  */
-export const getToken = async ({ context, id }: { context: HandlerContext; id: string }): Promise<Token_t | null> => {
+export const getToken = async ({ context, id }: { context: EvmOnEventContext; id: string }): Promise<Token | null> => {
     const token = await context.Token.get(id);
     return token ?? null;
 };
 
-export const getTokenOrThrow = async ({ context, id }: { context: HandlerContext; id: string }): Promise<Token_t> => {
+export const getTokenOrThrow = async ({ context, id }: { context: EvmOnEventContext; id: string }): Promise<Token> => {
     const token = await context.Token.get(id);
     if (!token) {
         throw new Error(`Token ${id} not found`);

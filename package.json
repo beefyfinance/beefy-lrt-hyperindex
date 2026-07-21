@@ -25,14 +25,12 @@
   },
   "dependencies": {
     "blockchain-addressbook": "0.54.93",
-    "envio": "2.32.0",
+    "envio": "3.2.1",
     "remeda": "^2.32.0",
     "viem": "2.38.5"
   },
-  "optionalDependencies": {
-    "generated": "./generated"
-  },
   "engines": {
-    "node": ">=24.11.0 <25.0.0"
-  }
+    "node": ">=22.0.0"
+  },
+  "type": "module"
 }

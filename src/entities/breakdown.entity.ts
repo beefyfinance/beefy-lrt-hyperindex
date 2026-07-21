@@ -1,10 +1,11 @@
-import type { BigDecimal, handlerContext as HandlerContext } from 'generated';
 import type {
-    BeefyVault_t,
-    InvestorPosition_t,
-    InvestorPositionBalanceBreakdown_t,
-    VaultBalanceBreakdown_t,
-} from 'generated/src/db/Entities.gen';
+    BeefyVault,
+    BigDecimal,
+    EvmOnEventContext,
+    InvestorPosition,
+    InvestorPositionBalanceBreakdown,
+    VaultBalanceBreakdown,
+} from 'envio';
 import type { ChainId } from '../lib/chain';
 
 export const getVaultBalanceBreakdownId = ({
@@ -13,7 +14,7 @@ export const getVaultBalanceBreakdownId = ({
     blockNumber,
 }: {
     chainId: ChainId;
-    vault: BeefyVault_t;
+    vault: BeefyVault;
     blockNumber: bigint;
 }): string => `${chainId}-${vault.address.toLowerCase()}-${blockNumber.toString()}`;
 
@@ -25,23 +26,23 @@ export const createVaultBalanceBreakdown = async ({
     blockTimestamp,
     balances,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
-    vault: BeefyVault_t;
+    vault: BeefyVault;
     blockNumber: bigint;
     blockTimestamp: bigint;
     balances: BigDecimal[];
-}): Promise<VaultBalanceBreakdown_t> => {
+}): Promise<VaultBalanceBreakdown> => {
     const id = getVaultBalanceBreakdownId({ chainId, vault, blockNumber });
     context.log.debug('Getting or creating vault balance breakdown', { id });
-    const entity: VaultBalanceBreakdown_t = {
+    const entity: VaultBalanceBreakdown = {
         id,
         chainId,
         vault_id: vault.id,
         blockNumber,
         blockTimestamp,
         balances,
-    } as unknown as VaultBalanceBreakdown_t;
+    } as unknown as VaultBalanceBreakdown;
     context.VaultBalanceBreakdown.set(entity);
     return entity;
 };
@@ -50,7 +51,7 @@ export const getInvestorPositionBalanceBreakdownId = ({
     investorPosition,
     blockNumber,
 }: {
-    investorPosition: InvestorPosition_t;
+    investorPosition: InvestorPosition;
     blockNumber: bigint;
 }): string => `${investorPosition.id}-${blockNumber.toString()}`;
 
@@ -63,17 +64,17 @@ export const upsertInvestorPositionBalanceBreakdown = async ({
     blockTimestamp,
     blockNumber,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
-    investorPosition: InvestorPosition_t;
+    investorPosition: InvestorPosition;
     balances: BigDecimal[];
     timeWeightedBalances: BigDecimal[];
     blockTimestamp: bigint;
     blockNumber: bigint;
-}): Promise<InvestorPositionBalanceBreakdown_t> => {
+}): Promise<InvestorPositionBalanceBreakdown> => {
     const id = getInvestorPositionBalanceBreakdownId({ investorPosition, blockNumber });
 
-    const entity: InvestorPositionBalanceBreakdown_t = {
+    const entity: InvestorPositionBalanceBreakdown = {
         id,
         chainId,
         investorPosition_id: investorPosition.id,
@@ -81,7 +82,7 @@ export const upsertInvestorPositionBalanceBreakdown = async ({
         timeWeightedBalances,
         lastUpdateTimestamp: blockTimestamp,
         lastUpdateBlock: blockNumber,
-    } as unknown as InvestorPositionBalanceBreakdown_t;
+    } as unknown as InvestorPositionBalanceBreakdown;
 
     context.InvestorPositionBalanceBreakdown.set(entity);
     return entity;

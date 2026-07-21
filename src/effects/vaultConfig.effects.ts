@@ -1,5 +1,4 @@
-import { createEffect, type EffectContext, S } from 'envio';
-import type { HandlerContext } from 'generated/src/Types';
+import { createEffect, type EffectContext, type EvmOnEventContext, S } from 'envio';
 import type { Hex } from 'viem';
 import { type ChainId, chainIdSchema } from '../lib/chain';
 import { type BeefyVault, getBeefyVaultConfigs } from '../lib/vault-breakdown/vault/getBeefyVaultConfig';
@@ -34,7 +33,7 @@ export const getBeefyVaultConfigForAddress = async ({
     chainId,
     vaultOrRewardPoolAddress: addressInput,
 }: {
-    context: HandlerContext | EffectContext;
+    context: EvmOnEventContext | EffectContext;
     chainId: ChainId;
     vaultOrRewardPoolAddress: string;
 }) => {

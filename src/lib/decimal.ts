@@ -1,4 +1,4 @@
-import { BigDecimal } from 'generated';
+import { BigDecimal } from 'envio';
 
 export const DEFAULT_DECIMAL_PLACES = 50;
 
