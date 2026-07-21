@@ -1,6 +1,4 @@
-import { BigDecimal, ClassicVault } from 'generated';
-import type { BeefyVault_t } from 'generated/src/db/Entities.gen';
-import type { HandlerContext } from 'generated/src/Types';
+import { type BeefyVault, BigDecimal, type EvmOnEventContext, indexer } from 'envio';
 import type { Hex } from 'viem';
 import { getClassicVaultTokens } from '../effects/classicVault.effects';
 import { getBeefyVaultConfigForAddress } from '../effects/vaultConfig.effects';
@@ -14,7 +12,7 @@ import { updateInvestorPositionAndBreakdown } from '../lib/investorPositionBreak
 // Import block handlers to ensure they're registered
 import './blockHandlers';
 
-ClassicVault.Initialized.handler(async ({ event, context }) => {
+indexer.onEvent({ contract: 'ClassicVault', event: 'Initialized' }, async ({ event, context }) => {
     const chainId = toChainId(event.chainId);
     const vaultAddress = event.srcAddress.toString().toLowerCase() as Hex;
     const blockNumber = BigInt(event.block.number);
@@ -26,7 +24,7 @@ ClassicVault.Initialized.handler(async ({ event, context }) => {
     context.log.info('ClassicVault initialized successfully', { vaultAddress });
 });
 
-ClassicVault.Transfer.handler(async ({ event, context }) => {
+indexer.onEvent({ contract: 'ClassicVault', event: 'Transfer' }, async ({ event, context }) => {
     const chainId = toChainId(event.chainId);
     const vaultAddress = event.srcAddress.toString().toLowerCase() as Hex;
 
@@ -80,7 +78,7 @@ ClassicVault.Transfer.handler(async ({ event, context }) => {
     }
 });
 
-ClassicVault.UpgradeStrat.handler(async ({ event, context }) => {
+indexer.onEvent({ contract: 'ClassicVault', event: 'UpgradeStrat' }, async ({ event, context }) => {
     const chainId = toChainId(event.chainId);
     const vaultAddress = event.srcAddress.toString().toLowerCase() as Hex;
     const newStrategyAddress = event.params.implementation.toString().toLowerCase() as Hex;
@@ -102,7 +100,7 @@ ClassicVault.UpgradeStrat.handler(async ({ event, context }) => {
     });
 
     // Update the vault's strategy reference
-    const updatedVault: BeefyVault_t = {
+    const updatedVault: BeefyVault = {
         ...vault,
         strategy_id: strategy.id,
     };
@@ -117,12 +115,12 @@ const initializeClassicVault = async ({
     blockNumber,
     blockTimestamp,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     vaultAddress: Hex;
     blockNumber: bigint;
     blockTimestamp: bigint;
-}): Promise<BeefyVault_t | null> => {
+}): Promise<BeefyVault | null> => {
     const existing = await getBeefyVault(context, chainId, vaultAddress);
     if (existing) return existing;
 

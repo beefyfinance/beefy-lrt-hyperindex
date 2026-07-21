@@ -1,6 +1,4 @@
-import { BigDecimal, RewardPool } from 'generated';
-import type { BeefyRewardPool_t } from 'generated/src/db/Entities.gen';
-import type { HandlerContext } from 'generated/src/Types';
+import { type BeefyRewardPool, BigDecimal, type EvmOnEventContext, indexer } from 'envio';
 import type { Hex } from 'viem';
 import { getRewardPoolTokens } from '../effects/rewardPool.effects';
 import { getBeefyVaultConfigForAddress } from '../effects/vaultConfig.effects';
@@ -12,7 +10,7 @@ import { type ChainId, toChainId } from '../lib/chain';
 import { interpretAsDecimal } from '../lib/decimal';
 import { updateInvestorPositionAndBreakdown } from '../lib/investorPositionBreakdown';
 
-RewardPool.Initialized.handler(async ({ event, context }) => {
+indexer.onEvent({ contract: 'RewardPool', event: 'Initialized' }, async ({ event, context }) => {
     const chainId = toChainId(event.chainId);
     const rewardPoolAddress = event.srcAddress.toString().toLowerCase() as Hex;
 
@@ -22,7 +20,7 @@ RewardPool.Initialized.handler(async ({ event, context }) => {
     context.log.info('ClassicRewardPool initialized successfully', { rewardPoolAddress });
 });
 
-RewardPool.Transfer.handler(async ({ event, context }) => {
+indexer.onEvent({ contract: 'RewardPool', event: 'Transfer' }, async ({ event, context }) => {
     const chainId = toChainId(event.chainId);
     const rewardPoolAddress = event.srcAddress.toString().toLowerCase() as Hex;
 
@@ -80,10 +78,10 @@ const initializeRewardPool = async ({
     chainId,
     rewardPoolAddress,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     rewardPoolAddress: Hex;
-}): Promise<BeefyRewardPool_t | null> => {
+}): Promise<BeefyRewardPool | null> => {
     const existing = await getBeefyRewardPool(context, chainId, rewardPoolAddress);
     if (existing) return existing;
 

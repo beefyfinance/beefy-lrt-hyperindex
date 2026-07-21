@@ -1,5 +1,4 @@
-import { BigDecimal, type handlerContext as HandlerContext } from 'generated';
-import type { BeefyVault_t, Investor_t, InvestorPosition_t } from 'generated/src/db/Entities.gen';
+import { type BeefyVault, BigDecimal, type EvmOnEventContext, type Investor, type InvestorPosition } from 'envio';
 import type { ChainId } from '../lib/chain';
 
 export const investorPositionId = ({
@@ -8,8 +7,8 @@ export const investorPositionId = ({
     investor,
 }: {
     chainId: ChainId;
-    vault: BeefyVault_t;
-    investor: Investor_t;
+    vault: BeefyVault;
+    investor: Investor;
 }) => `${chainId}-${vault.address.toLowerCase()}-${investor.address.toLowerCase()}`;
 
 export const getOrCreateInvestorPosition = async ({
@@ -18,11 +17,11 @@ export const getOrCreateInvestorPosition = async ({
     vault,
     investor,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
-    vault: BeefyVault_t;
-    investor: Investor_t;
-}): Promise<InvestorPosition_t> => {
+    vault: BeefyVault;
+    investor: Investor;
+}): Promise<InvestorPosition> => {
     const id = investorPositionId({ chainId, vault, investor });
     const existing = await context.InvestorPosition.get(id);
     if (existing) return existing;
@@ -48,9 +47,9 @@ export const getAllInvestorPositionsForVault = async ({
     context,
     vault,
 }: {
-    context: HandlerContext;
-    vault: BeefyVault_t;
-}): Promise<InvestorPosition_t[]> => {
+    context: EvmOnEventContext;
+    vault: BeefyVault;
+}): Promise<InvestorPosition[]> => {
     return await context.InvestorPosition.getWhere.vault_id.eq(vault.id);
 };
 
@@ -61,8 +60,8 @@ export const updateInvestorPosition = async ({
     context,
     investorPosition,
 }: {
-    context: HandlerContext;
-    investorPosition: InvestorPosition_t;
+    context: EvmOnEventContext;
+    investorPosition: InvestorPosition;
 }): Promise<void> => {
     context.InvestorPosition.set(investorPosition);
 };

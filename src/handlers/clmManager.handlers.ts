@@ -1,6 +1,4 @@
-import { BigDecimal, ClmManager } from 'generated';
-import type { BeefyVault_t } from 'generated/src/db/Entities.gen';
-import type { HandlerContext } from 'generated/src/Types';
+import { type BeefyVault, BigDecimal, type EvmOnEventContext, indexer } from 'envio';
 import type { Hex } from 'viem';
 import { getClmManagerTokens } from '../effects/clmManager.effects';
 import { getBeefyVaultConfigForAddress } from '../effects/vaultConfig.effects';
@@ -11,7 +9,7 @@ import { type ChainId, toChainId } from '../lib/chain';
 import { interpretAsDecimal } from '../lib/decimal';
 import { updateInvestorPositionAndBreakdown } from '../lib/investorPositionBreakdown';
 
-ClmManager.Initialized.handler(async ({ event, context }) => {
+indexer.onEvent({ contract: 'ClmManager', event: 'Initialized' }, async ({ event, context }) => {
     const chainId = toChainId(event.chainId);
     const vaultAddress = event.srcAddress.toString().toLowerCase() as Hex;
     const blockNumber = BigInt(event.block.number);
@@ -23,7 +21,7 @@ ClmManager.Initialized.handler(async ({ event, context }) => {
     context.log.info('ClmManager initialized successfully', { vaultAddress });
 });
 
-ClmManager.Transfer.handler(async ({ event, context }) => {
+indexer.onEvent({ contract: 'ClmManager', event: 'Transfer' }, async ({ event, context }) => {
     const chainId = toChainId(event.chainId);
     const vaultAddress = event.srcAddress.toString().toLowerCase() as Hex;
 
@@ -84,12 +82,12 @@ const initializeClmManager = async ({
     blockNumber,
     blockTimestamp,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     vaultAddress: Hex;
     blockNumber: bigint;
     blockTimestamp: bigint;
-}): Promise<BeefyVault_t | null> => {
+}): Promise<BeefyVault | null> => {
     const existing = await getBeefyVault(context, chainId, vaultAddress);
     if (existing) return existing;
 

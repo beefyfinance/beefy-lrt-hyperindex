@@ -1,5 +1,4 @@
-import type { handlerContext as HandlerContext } from 'generated';
-import type { ClockTick_t } from 'generated/src/db/Entities.gen';
+import type { ClockTick, EvmOnEventContext } from 'envio';
 import type { ChainId } from '../lib/chain';
 
 /**
@@ -26,11 +25,11 @@ export const getClockTick = async ({
     roundedTimestamp,
     period,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     roundedTimestamp: bigint;
     period: bigint;
-}): Promise<ClockTick_t | null> => {
+}): Promise<ClockTick | null> => {
     const id = clockTickId({ chainId, roundedTimestamp, period });
     const clockTick = await context.ClockTick.get(id);
     return clockTick ?? null;
@@ -47,13 +46,13 @@ export const createClockTick = async ({
     timestamp,
     blockNumber,
 }: {
-    context: HandlerContext;
+    context: EvmOnEventContext;
     chainId: ChainId;
     roundedTimestamp: bigint;
     period: bigint;
     timestamp: bigint;
     blockNumber: bigint;
-}): Promise<ClockTick_t> => {
+}): Promise<ClockTick> => {
     const id = clockTickId({ chainId, roundedTimestamp, period });
     const existing = await context.ClockTick.get(id);
 
@@ -61,13 +60,13 @@ export const createClockTick = async ({
         return existing;
     }
 
-    const clockTick: ClockTick_t = {
+    const clockTick: ClockTick = {
         id,
         period,
         roundedTimestamp,
         timestamp,
         blockNumber,
-    } as unknown as ClockTick_t;
+    } as unknown as ClockTick;
 
     context.ClockTick.set(clockTick);
     return clockTick;
