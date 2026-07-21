@@ -50,7 +50,7 @@ export const getAllInvestorPositionsForVault = async ({
     context: EvmOnEventContext;
     vault: BeefyVault;
 }): Promise<InvestorPosition[]> => {
-    return await context.InvestorPosition.getWhere.vault_id.eq(vault.id);
+    return await context.InvestorPosition.getWhere({ vault_id: { _eq: vault.id } });
 };
 
 /**

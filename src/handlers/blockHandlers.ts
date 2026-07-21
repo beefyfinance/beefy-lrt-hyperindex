@@ -24,7 +24,10 @@ R.pipe(
     ),
     R.forEach(([chainId, interval]) => {
         indexer.onBlock(
-            { name: `ClockTickHandler-${chainId}`, chain: chainId, interval },
+            {
+                name: `ClockTickHandler-${chainId}`,
+                where: ({ chain }) => (chain.id === chainId ? { block: { number: { _every: interval } } } : false),
+            },
             async ({ block, context }) => {
                 // Get block timestamp from RPC (not available in block object yet)
                 const blockNumber = BigInt(block.number);

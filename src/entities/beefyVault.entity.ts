@@ -101,7 +101,7 @@ export const getAllBeefyVaultsForChain = async ({
     context: EvmOnEventContext;
     chainId: ChainId;
 }): Promise<BeefyVault[]> => {
-    return await context.BeefyVault.getWhere.chainId.eq(chainId);
+    return await context.BeefyVault.getWhere({ chainId: { _eq: chainId } });
 };
 
 export const getBeefyStrategyId = ({ chainId, address }: { chainId: ChainId; address: Hex }) =>

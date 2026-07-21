@@ -51,7 +51,7 @@ export const getBalancerAuraVaultBreakdown = async (
         client,
         address: balancerVaultAddress,
         abi: BalancerVaultAbi,
-    });
+    }) as any;
     const poolTokenRes = await balancerVaultContract.read.getPoolTokens([balancerPoolId], {
         blockNumber,
     });
@@ -108,7 +108,7 @@ export const getBalancerVaultBreakdown = async (
         client,
         address: balancerVaultAddress,
         abi: BalancerVaultAbi,
-    });
+    }) as any;
     const [poolTokens, _, poolBalances] = await balancerVaultContract.read.getPoolTokenInfo(
         [vault.undelying_lp_address],
         {

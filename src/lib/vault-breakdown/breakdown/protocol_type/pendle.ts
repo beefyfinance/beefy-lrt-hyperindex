@@ -19,13 +19,13 @@ export const getPendleVaultBreakdown = async (
         client,
         address: vault.vault_address,
         abi: BeefyVaultV7Abi,
-    });
+    }) as any;
 
     const pendleMarketContract = getContract({
         client,
         address: vault.undelying_lp_address,
         abi: PendleMarketAbi,
-    });
+    }) as any;
 
     const vaultWantBalance = await vaultContract.read.balance({ blockNumber });
     const vaultTotalSupply = await vaultContract.read.totalSupply({ blockNumber });
@@ -38,7 +38,7 @@ export const getPendleVaultBreakdown = async (
         client,
         address: tokenAddresses[0],
         abi: PendleSyTokenAbi,
-    });
+    }) as any;
 
     const syUnderlyingAddress = await syTokenContract.read.yieldToken({ blockNumber });
 
